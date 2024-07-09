@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Brush {
+  id           String                 @id @default(cuid())
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  size         Int?
+  color        String?
+  name         String?
+  typeField    EnumBrushTypeField?
+  strokes      Stroke[]
+  brushStyle   EnumBrushBrushStyle?
+  brushVariant EnumBrushBrushVariant?
+}
+
+model Drawing {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  title       String?
+  description String?
+  strokes     Stroke[]
+  user        User?       @relation(fields: [userId], references: [id])
+  userId      String?
+  fillColors  FillColor[]
+}
+
+model Stroke {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  path        Json?
+  coordinates String?
+  drawing     Drawing? @relation(fields: [drawingId], references: [id])
+  drawingId   String?
+  brush       Brush?   @relation(fields: [brushId], references: [id])
+  brushId     String?
+}
+
+model User {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  firstName String?
+  lastName  String?
+  username  String    @unique
+  email     String?   @unique
+  password  String
+  roles     Json
+  drawings  Drawing[]
+}
+
+model FillColor {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  color     String?
+  drawing   Drawing? @relation(fields: [drawingId], references: [id])
+  drawingId String?
+}
+
+enum EnumBrushTypeField {
+  Option1
+}
+
+enum EnumBrushBrushStyle {
+  Option1
+}
+
+enum EnumBrushBrushVariant {
+  Option1
+}
